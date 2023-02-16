@@ -1,16 +1,22 @@
 import { redirect } from "react-router-dom";
 import url from "./url";
 
-// Create Action
-export async function CreateAction({ request }) {
-  // get the form data
+const generateTodoObject = async (request) => {
+    // get the form data
   const formData = await request.formData();
 
   // construct request body - new todo
-  const newTodo = {
+  return {
     subject: formData.get("subject"),
     details: formData.get("details"),
   };
+}
+
+
+// Create Action
+export async function CreateAction({ request }) {
+
+  const newTodo = await generateTodoObject(request)
 
   // send request to backend
   await fetch(url, {
@@ -26,14 +32,8 @@ export async function CreateAction({ request }) {
 }
 
 export async function UpdateAction({ request, params }) {
-    // get the form data
-    const formData = await request.formData();
-  
-    // construct new todo
-    const updateTodo = {
-      subject: formData.get("subject"),
-      details: formData.get("details"),
-    };
+    
+    const newTodo = await generateTodoObject(request)
   
     // request to update route in backend
     await fetch(url + params.id + "/", {
@@ -41,7 +41,7 @@ export async function UpdateAction({ request, params }) {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(updateTodo),
+      body: JSON.stringify(newTodo),
     });
   
     // redirect back to the index page
